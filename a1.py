@@ -12,7 +12,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(40, 30, 171, 31))
+        self.label.setGeometry(QtCore.QRect(40, 30, 400, 31))
         self.label.setStyleSheet("QLabel{\n"
 "    background-color: rgb(202, 202, 202);\n"
 "    border: 2px solid;\n"
@@ -151,7 +151,7 @@ class Ui_MainWindow(object):
         self.comboBox_pocz_daty.setObjectName("comboBox_pocz_daty")
 
         # self.comboBox_pocz_daty.addItems(c1.daty())
-        self.comboBox_pocz_daty.addItems( c1.daty( self.plik_html( ) ))
+        self.comboBox_pocz_daty.addItems( self.zakres_poczatek_dat() )
 
         self.comboBox_koniec_daty = QtWidgets.QComboBox(self.centralwidget)
         self.comboBox_koniec_daty.setGeometry(QtCore.QRect(170, 390, 130, 40))
@@ -167,8 +167,9 @@ class Ui_MainWindow(object):
                                               "    border-color: rgb(0, 0, 255);\n"
                                               "}")
         self.comboBox_koniec_daty.setObjectName("comboBox_koniec_daty")
-        # self.comboBox_koniec_daty.addItems(c1.daty())
-        self.comboBox_koniec_daty.addItems( c1.daty( self.plik_html( ) ))
+
+
+        self.comboBox_koniec_daty.addItems( self.zakres_konca_dat() )
 
         self.pushButton_wykres = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.guzik_wykres())
         self.pushButton_wykres.setGeometry(QtCore.QRect(320, 390, 130, 40))
@@ -214,7 +215,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def guzik1(self,pressed):
-        self.label.setText( ' :) ')
+        self.label.setText( f'wybrałeś kursy z dnia {self.comboBox.currentText()}r.')
         # self.textBrowser.setText( b1.pokemony_wybierz_wiersz('pokemon.csv',self.comboBox.currentText()))
         # self.textBrowser.setText( c1.waluty_wybierz_wiersz(self.plik_html(),'20220104'))
         # data=pressed.split('-')
@@ -223,18 +224,28 @@ class Ui_MainWindow(object):
 
 
     def guzik2(self, pressed ):
-        self.label.setText( ' :( ')
+        self.label.setText( f'wybrałeś kurs {self.comboBox_2.currentText()} z dnia {self.comboBox.currentText()}r. ')
         # self.textBrowser_2.setText( b1.pokemony_wybierz_wartosc('pokemon.csv',self.comboBox_2.currentText(),self.comboBox.currentText()))
         data = self.comboBox.currentText()
         data = data[-4:] + data[3:5] + data[:2]
-        print(f' data {data} i pressed  {pressed}'  )
+        # print(f' data {data} i pressed  {pressed}'  )
         self.textBrowser_2.setText( c1.waluta_wartosc( self.plik_html(),data, pressed ))
+
+    def zakres_poczatek_dat(self):
+        return c1.daty( self.plik_html( ))
+
+    def zakres_konca_dat(self):
+        lista = self.zakres_poczatek_dat()
+        wybrana = lista.index(self.comboBox.currentText() )
+        kawalek = lista[ wybrana :]
+        return kawalek
 
     def plik_html(self):
         plik = 'https://www.nbp.pl/kursy/Archiwum/archiwum_tab_a_2022.csv'
         return plik
 
     def guzik_wykres(self):
+
         b1.wykres()
 
     def retranslateUi(self, MainWindow):
