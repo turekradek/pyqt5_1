@@ -8,7 +8,10 @@ import pandas
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(670, 660)
+        MainWindow.resize(670, 700)
+
+        self.model = QtGui.QStandardItemModel() ################
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -150,8 +153,11 @@ class Ui_MainWindow(object):
                                     "}")
         self.comboBox_pocz_daty.setObjectName("comboBox_pocz_daty")
 
-        # self.comboBox_pocz_daty.addItems(c1.daty())
-        self.comboBox_pocz_daty.addItems( self.zakres_poczatek_dat() )
+        self.comboBox_pocz_daty.setModel(self.model) #################################
+        # self.comboBox_pocz_daty.addItems( list(c1.daty_zalezne( self.plik_html()).values())[0])
+        # self.comboBox_pocz_daty.addItems( c1.daty_zalezne( self.plik_html()))
+
+
 
         self.comboBox_koniec_daty = QtWidgets.QComboBox(self.centralwidget)
         self.comboBox_koniec_daty.setGeometry(QtCore.QRect(170, 390, 130, 40))
@@ -168,9 +174,28 @@ class Ui_MainWindow(object):
                                               "}")
         self.comboBox_koniec_daty.setObjectName("comboBox_koniec_daty")
 
+        self.comboBox_koniec_daty.setModel(self.model) ###########################
 
-        self.comboBox_koniec_daty.addItems( self.zakres_konca_dat() )
+        # sl = list(c1.daty_zalezne( self.plik_html(), self.comboBox_pocz_daty.currentText()).values())[0]
+        # self.comboBox_koniec_daty.addItems( list(c1.daty_zalezne( self.plik_html(), self.comboBox_pocz_daty.currentText()).values())[0] )
 
+        #poczatek = list(c1.daty_zalezne( self.plik_html()).values())[0]
+        # self.comboBox_pocz_daty.addItems( poczatek )
+        #koniec   = list(c1.daty_zalezne( self.plik_html(), self.comboBox_pocz_daty.currentText()).values())[0]
+        # self.comboBox_koniec_daty.addItems(poczatek)
+        # print( poczatek )
+        # print( koniec )
+        lista_dat = c1.daty(self.plik_html())
+        # slownik = { data: c1.daty_zalezne( self.plik_html(), data)  for data in lista_dat }
+        for k , v in slownik.items():
+            poczatek_ = QtGui.QStandardItem(k) ################
+            self.model.appendRow( poczatek_)
+            for value in v:
+                koniec_ = QtGui.QStandardItem(value) ################
+                poczatek_.appendRow( koniec_ )
+
+        # print( lista_dat )
+        # print( slownik )
         self.pushButton_wykres = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.guzik_wykres())
         self.pushButton_wykres.setGeometry(QtCore.QRect(320, 390, 130, 40))
         self.pushButton_wykres.setStyleSheet("QPushButton{\n"
@@ -214,6 +239,17 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        lista_dat = c1.daty( self.plik_html() )
+        # slownik = {data: c1.daty_zalezne( self.plik_html(), data) for data in lista_dat}
+
+        self.comboBox_pocz_daty.currentIndexChanged.connect( self.update_combo_koniec)
+        self.update_combo_koniec( 0 )
+
+    def update_combo_koniec(self, index ): ###########
+        indx = self.model.index( index, 0 , self.comboBox_pocz_daty.rootModelIndex())
+        self.comboBox_koniec_daty.setRootModelIndex( indx )
+        self.comboBox_koniec_daty.setCurrentIndex( 0 )
+
     def guzik1(self,pressed):
         self.label.setText( f'wybrałeś kursy z dnia {self.comboBox.currentText()}r.')
         # self.textBrowser.setText( b1.pokemony_wybierz_wiersz('pokemon.csv',self.comboBox.currentText()))
@@ -231,14 +267,19 @@ class Ui_MainWindow(object):
         # print(f' data {data} i pressed  {pressed}'  )
         self.textBrowser_2.setText( c1.waluta_wartosc( self.plik_html(),data, pressed ))
 
-    def zakres_poczatek_dat(self):
-        return c1.daty( self.plik_html( ))
+    def zakres_dat(self):
+        return c1.daty( self.plik_html() )
+
+
+    def co_ma_poczatek_dat(self):
+        print( f'co ma poczatek dat {self.comboBox_pocz_daty.currentText()}')
+        self.comboBox_pocz_daty.addItems( self.zakres_dat() )
+        return self.comboBox_pocz_daty.currentText()
 
     def zakres_konca_dat(self):
-        lista = self.zakres_poczatek_dat()
-        wybrana = lista.index(self.comboBox.currentText() )
-        kawalek = lista[ wybrana :]
-        return kawalek
+        # self.comboBox_koniec_daty.clear()
+        # lista = self.co_ma_poczatek_dat()[:20]
+        self.comboBox_koniec_daty.addItems([self.co_ma_poczatek_dat(),'v'])
 
     def plik_html(self):
         plik = 'https://www.nbp.pl/kursy/Archiwum/archiwum_tab_a_2022.csv'
@@ -256,7 +297,17 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "ok"))
         self.pushButton_wykres.setText(_translate("MainWindow", "pokaż wykres"))
 
-
+url = 'https://www.nbp.pl/kursy/Archiwum/archiwum_tab_a_2022.csv'
+# slownik = c1.slownik_1()
+slownik_ =  c1.daty(url)
+print( slownik_ )
+slownik = {  el: c1.daty_zalezne(url,el)  for el in slownik_ }
+print( slownik )
+# data = {
+#         'a':['a1','a2'],
+#         'b':['b1','b2'],
+#         'c':['c1','c2'],
+#     }
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -265,3 +316,4 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+
