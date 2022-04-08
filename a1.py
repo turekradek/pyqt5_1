@@ -300,9 +300,9 @@ class Ui_MainWindow(object):
 url = 'https://www.nbp.pl/kursy/Archiwum/archiwum_tab_a_2022.csv'
 # slownik = c1.slownik_1()
 slownik_ =  c1.daty(url)
-print( slownik_ )
+# print( slownik_ )
 slownik = {  el: c1.daty_zalezne(url,el)  for el in slownik_ }
-print( slownik )
+# print( slownik )
 # data = {
 #         'a':['a1','a2'],
 #         'b':['b1','b2'],
@@ -317,3 +317,4 @@ if __name__ == "__main__":
     MainWindow.show()
     sys.exit(app.exec_())
 
+# to plik roboczy na branch roboczy
